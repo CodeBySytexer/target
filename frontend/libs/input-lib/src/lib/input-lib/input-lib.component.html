@@ -1,19 +1,60 @@
 <div nxLayout="grid maxwidth">
+  <!-- Global Error Message -->
+  @if (inputStore.uiState().error) {
+    <div nxRow class="nx-margin-bottom-m">
+      <div nxCol="12">
+        <nx-message type="error">
+          <strong>Fehler bei der Berechnung:</strong><br>
+          {{ inputStore.uiState().error }}
+          <button nxButton="tertiary small" type="button" (click)="clearError()" class="nx-margin-left-xs">
+            ✕
+          </button>
+        </nx-message>
+      </div>
+    </div>
+  }
+  
   <div nxRow>
     <div nxCol="12">
       <div class="nx-margin-bottom-4m">
         <div nxRow>
           <div nxCol="12">
-            <!-- TODO: Add datepicker here -->
+            <nx-formfield [label]="'Geburtsdatum'" appearance="auto" floatLabel="auto">
+              <input
+                nxInput
+                type="date"
+                [value]="inputStore.uiState().geburtsdatum.value"
+                [disabled]="inputStore.isCalculatingQuote()"
+                (change)="
+                  updateInputs({
+                    key: 'geburtsdatum',
+                    value: $any($event.target).value,
+                  })
+                "
+                [max]="maxDate"
+              />
+            </nx-formfield>
           </div>
         </div>
+        @if (inputStore.uiState().geburtsdatum.error) {
+          <div nxRow class="nx-margin-top-2xs nx-margin-bottom-2xs">
+            <div nxCol="12">
+              <nx-error nxFormfieldError [showIcon]="true">
+                {{ inputStore.uiState().geburtsdatum.error }}
+              </nx-error>
+            </div>
+          </div>
+        }
       </div>
 
       <div class="nx-margin-bottom-2m">
         <div nxRow>
           <div nxCol="12,12,8,8">
             <nx-formfield [label]="'Leistungs-/ Beitragsvorgabe'">
-              <nx-dropdown [value]="inputStore.uiState().leistungsVorgabe.value" (valueChange)="updateInputs({ key: 'leistungsVorgabe', value: $event })">
+              <nx-dropdown 
+                [value]="inputStore.uiState().leistungsVorgabe.value" 
+                [disabled]="inputStore.isCalculatingQuote()"
+                (valueChange)="updateInputs({ key: 'leistungsVorgabe', value: $event })">
                 <nx-dropdown-item [value]="'Beitrag'">Beitrag</nx-dropdown-item>
                 <nx-dropdown-item [value]="'Einmalbeitrag'">Einmalbeitrag</nx-dropdown-item>
                 <nx-dropdown-item [value]="'Garantierte Mindestrente'">Garantierte Mindestrente</nx-dropdown-item>
@@ -29,6 +70,7 @@
                 nxInput
                 type="number"
                 [value]="inputStore.uiState().beitrag.value"
+                [disabled]="inputStore.isCalculatingQuote()"
                 (input)="
                   updateInputs({
                     key: 'beitrag',
@@ -54,7 +96,10 @@
         <div nxRow>
           <div nxCol="12,12,8,8">
             <nx-formfield [label]="'Berechnung der Laufzeit'">
-              <nx-dropdown [value]="inputStore.uiState().berechnungDerLaufzeit.value" (valueChange)="updateInputs({ key: 'berechnungDerLaufzeit', value: $event })">
+              <nx-dropdown 
+                [value]="inputStore.uiState().berechnungDerLaufzeit.value" 
+                [disabled]="inputStore.isCalculatingQuote()"
+                (valueChange)="updateInputs({ key: 'berechnungDerLaufzeit', value: $event })">
                 <nx-dropdown-item [value]="'Alter bei Rentenbeginn'">Alter bei Rentenbeginn</nx-dropdown-item>
                 <nx-dropdown-item [value]="'Aufschubdauer'">Aufschubdauer</nx-dropdown-item>
               </nx-dropdown>
@@ -66,6 +111,7 @@
                 nxInput
                 type="number"
                 [value]="inputStore.uiState().laufzeit.value"
+                [disabled]="inputStore.isCalculatingQuote()"
                 (input)="
                   updateInputs({
                     key: 'laufzeit',
@@ -90,7 +136,10 @@
       <div nxRow class="nx-margin-bottom-2m">
         <div nxCol="12">
           <nx-formfield [label]="'Beitragszahlungsweise'">
-            <nx-dropdown [value]="inputStore.uiState().beitragszahlungsweise.value" (valueChange)="updateInputs({ key: 'beitragszahlungsweise', value: $event })">
+            <nx-dropdown 
+              [value]="inputStore.uiState().beitragszahlungsweise.value" 
+              [disabled]="inputStore.isCalculatingQuote()"
+              (valueChange)="updateInputs({ key: 'beitragszahlungsweise', value: $event })">
               <nx-dropdown-item [value]="'Einmalbeitrag'">Einmalbeitrag</nx-dropdown-item>
               <nx-dropdown-item [value]="'Monatliche Beiträge'">Monatliche Beiträge</nx-dropdown-item>
             </nx-dropdown>
@@ -101,7 +150,10 @@
       <div nxRow>
         <div nxCol="12">
           <nx-formfield [label]="'Rentenzahlungsweise'">
-            <nx-dropdown [value]="inputStore.uiState().rentenzahlungsweise.value" (valueChange)="updateInputs({ key: 'rentenzahlungsweise', value: $event })">
+            <nx-dropdown 
+              [value]="inputStore.uiState().rentenzahlungsweise.value" 
+              [disabled]="inputStore.isCalculatingQuote()"
+              (valueChange)="updateInputs({ key: 'rentenzahlungsweise', value: $event })">
               <nx-dropdown-item [value]="'Monatliche Renten'">Monatliche Renten</nx-dropdown-item>
               <nx-dropdown-item [value]="'Vierteljährliche Renten'">Vierteljährliche Renten</nx-dropdown-item>
               <nx-dropdown-item [value]="'Halbjährliche Renten'">Halbjährliche Renten</nx-dropdown-item>
@@ -114,12 +166,29 @@
   </div>
   <div nxRow>
     <div nxCol="4">
-      <button nxButton type="button" (click)="calculate()">Berechnen</button>
+      <button 
+        nxButton="primary" 
+        type="button" 
+        (click)="calculate()"
+        [disabled]="inputStore.isCalculatingQuote()">
+        @if (inputStore.isCalculatingQuote()) {
+          <span class="loading-spinner"></span>
+          Wird berechnet...
+        } @else {
+          Berechnen
+        }
+      </button>
     </div>
     <div nxCol="8">
       @if (inputStore.uiState().quote.beitrag.einmalbeitrag || inputStore.uiState().quote.leistungsmerkmale.garantierteMindestrente) {
         <div class="nx-margin-top-xs">
           <div class="nx-margin-bottom-s">
+            <div class="nx-margin-bottom-xs">
+              <span>
+                <strong class="nx-margin-right-2xs">Ihr Alter:</strong>
+                {{ calculateAge(inputStore.uiState().quote.basisdaten.geburtsdatum) }} Jahre
+              </span>
+            </div>
             <span>
               <strong class="nx-margin-right-2xs">Einmalbeitrag:</strong>
               {{ inputStore.uiState().quote.beitrag.einmalbeitrag | currency: 'EUR' }}

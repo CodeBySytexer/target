@@ -1,0 +1,341 @@
+<div class="quote-summary-container">
+    <div class="quote-summary-header">
+        <div class="header-icon">📋</div>
+        <h1>Vollständige Angebots-Zusammenfassung</h1>
+        <p class="subtitle">Detaillierte Übersicht Ihres Rentenversicherungsangebots</p>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading()" class="loading-state">
+        <div class="loading-spinner"></div>
+        <p>Angebot wird berechnet...</p>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error() && !isLoading()" class="error-state">
+        <div class="error-message">
+            <h2>Fehler beim Berechnen des Angebots</h2>
+            <p>{{ error() }}</p>
+            <div class="error-actions">
+                <button type="button" class="btn btn-primary" (click)="goBack()">
+                    Zurück zur Eingabe
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quote Summary -->
+    <div *ngIf="quote() && !isLoading() && !error()" class="quote-content">
+
+        <!-- Key Highlights Section -->
+        <div class="highlights-section">
+            <h2 class="section-title">
+                <span class="icon">⭐</span>
+                Angebot im Überblick
+            </h2>
+            <div class="highlights-grid">
+                <div class="highlight-card primary">
+                    <div class="highlight-icon">💰</div>
+                    <div class="highlight-content">
+                        <span class="highlight-label">Garantierte Mindestrente</span>
+                        <span class="highlight-value">{{
+                            formatCurrency(quote().leistungsmerkmale.garantierteMindestrente) }}</span>
+                        <span class="highlight-period">monatlich</span>
+                    </div>
+                </div>
+                <div class="highlight-card secondary">
+                    <div class="highlight-icon">🏦</div>
+                    <div class="highlight-content">
+                        <span class="highlight-label">Einmalbeitrag</span>
+                        <span class="highlight-value">{{ formatCurrency(quote().beitrag.einmalbeitrag) }}</span>
+                        <span class="highlight-period">einmalig</span>
+                    </div>
+                </div>
+                <div class="highlight-card accent">
+                    <div class="highlight-icon">🎯</div>
+                    <div class="highlight-content">
+                        <span class="highlight-label">Alter bei Rentenbeginn</span>
+                        <span class="highlight-value">{{ quote().basisdaten.alterBeiRentenbeginn }}</span>
+                        <span class="highlight-period">Jahre</span>
+                    </div>
+                </div>
+                <div class="highlight-card success">
+                    <div class="highlight-icon">💎</div>
+                    <div class="highlight-content">
+                        <span class="highlight-label">Garantiekapital</span>
+                        <span class="highlight-value">{{
+                            formatCurrency(quote().leistungsmerkmale.einmaligesGarantiekapital) }}</span>
+                        <span class="highlight-period">einmalig</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Personal Information Section -->
+        <div class="quote-section">
+            <h2 class="section-title">
+                <span class="icon">👤</span>
+                Ihre persönlichen Daten
+            </h2>
+            <div class="quote-grid">
+                <div class="quote-item">
+                    <div class="item-icon">🎂</div>
+                    <div class="item-content">
+                        <label>Geburtsdatum</label>
+                        <span>{{ formatDate(quote().basisdaten.geburtsdatum) }}</span>
+                        <small>Aktuelles Alter: {{ calculateCurrentAge() }} Jahre</small>
+                    </div>
+                </div>
+                <div class="quote-item">
+                    <div class="item-icon">📅</div>
+                    <div class="item-content">
+                        <label>Versicherungsbeginn</label>
+                        <span>{{ formatDate(quote().basisdaten.versicherungsbeginn) }}</span>
+                        <small>Startet {{ getTimeDifferenceFromToday(quote().basisdaten.versicherungsbeginn) }}</small>
+                    </div>
+                </div>
+                <div class="quote-item">
+                    <div class="item-icon">⏳</div>
+                    <div class="item-content">
+                        <label>Aufschubdauer</label>
+                        <span>{{ quote().basisdaten.aufschubdauer }} Jahre</span>
+                        <small>Zeit bis zum Rentenbeginn</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contract Details Section -->
+        <div class="quote-section">
+            <h2 class="section-title">
+                <span class="icon">📄</span>
+                Vertragsdetails
+            </h2>
+            <div class="quote-grid">
+                <div class="quote-item">
+                    <div class="item-icon">🛡️</div>
+                    <div class="item-content">
+                        <label>Garantieniveau</label>
+                        <span>{{ quote().basisdaten.garantieniveau }}</span>
+                        <small>Sicherheitsstufe Ihrer Anlage</small>
+                    </div>
+                </div>
+                <div class="quote-item">
+                    <div class="item-icon">⏰</div>
+                    <div class="item-content">
+                        <label>Beitragszahlungsdauer</label>
+                        <span>{{ quote().basisdaten.beitragszahlungsdauer }} Jahre</span>
+                        <small>{{ getInputValue('beitragszahlungsweise') }}</small>
+                    </div>
+                </div>
+                <div class="quote-item">
+                    <div class="item-icon">📈</div>
+                    <div class="item-content">
+                        <label>Beitragsdynamik</label>
+                        <span>{{ quote().beitrag.beitragsdynamik }}</span>
+                        <small>Anpassung der Beiträge</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Your Input Parameters Section -->
+        <div class="quote-section">
+            <h2 class="section-title">
+                <span class="icon">📝</span>
+                Ihre Eingabeparameter
+            </h2>
+            <div class="quote-grid">
+                <div class="quote-item">
+                    <div class="item-icon">🎯</div>
+                    <div class="item-content">
+                        <label>Leistungsvorgabe</label>
+                        <span>{{ getInputValue('leistungsVorgabe') }}</span>
+                        <small>Art der gewünschten Leistung</small>
+                    </div>
+                </div>
+                <div class="quote-item">
+                    <div class="item-icon">💰</div>
+                    <div class="item-content">
+                        <label>Beitrag</label>
+                        <span>{{ formatCurrency(getInputValue('beitrag')) }}</span>
+                        <small>Ihr gewählter Beitrag</small>
+                    </div>
+                </div>
+                <div class="quote-item">
+                    <div class="item-icon">📊</div>
+                    <div class="item-content">
+                        <label>Berechnung der Laufzeit</label>
+                        <span>{{ getInputValue('berechnungDerLaufzeit') }}</span>
+                        <small>Berechnungsgrundlage</small>
+                    </div>
+                </div>
+                <div class="quote-item">
+                    <div class="item-icon">⏲️</div>
+                    <div class="item-content">
+                        <label>Laufzeit</label>
+                        <span>{{ getInputValue('laufzeit') }} Jahre</span>
+                        <small>Gewählte Laufzeit</small>
+                    </div>
+                </div>
+                <div class="quote-item">
+                    <div class="item-icon">💳</div>
+                    <div class="item-content">
+                        <label>Beitragszahlungsweise</label>
+                        <span>{{ getInputValue('beitragszahlungsweise') }}</span>
+                        <small>Art der Beitragszahlung</small>
+                    </div>
+                </div>
+                <div class="quote-item">
+                    <div class="item-icon">📆</div>
+                    <div class="item-content">
+                        <label>Rentenzahlungsweise</label>
+                        <span>{{ getInputValue('rentenzahlungsweise') }}</span>
+                        <small>Art der Rentenzahlung</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Financial Benefits Section -->
+        <div class="quote-section benefits">
+            <h2 class="section-title">
+                <span class="icon">💎</span>
+                Ihre Leistungen im Detail
+            </h2>
+            <div class="benefits-grid">
+                <div class="benefit-card primary">
+                    <div class="benefit-header">
+                        <div class="benefit-icon">🏆</div>
+                        <h3>Garantierte Mindestrente</h3>
+                    </div>
+                    <div class="benefit-amount">{{ formatCurrency(quote().leistungsmerkmale.garantierteMindestrente) }}
+                    </div>
+                    <div class="benefit-detail">monatlich lebenslang</div>
+                    <div class="benefit-calculation">
+                        <small>Jährlich: {{ formatCurrency(quote().leistungsmerkmale.garantierteMindestrente * 12)
+                            }}</small>
+                    </div>
+                </div>
+                <div class="benefit-card secondary">
+                    <div class="benefit-header">
+                        <div class="benefit-icon">🎁</div>
+                        <h3>Einmaliges Garantiekapital</h3>
+                    </div>
+                    <div class="benefit-amount">{{ formatCurrency(quote().leistungsmerkmale.einmaligesGarantiekapital)
+                        }}</div>
+                    <div class="benefit-detail">zu Rentenbeginn</div>
+                    <div class="benefit-calculation">
+                        <small>Zusätzlich zur monatlichen Rente</small>
+                    </div>
+                </div>
+                <div class="benefit-card accent">
+                    <div class="benefit-header">
+                        <div class="benefit-icon">🛡️</div>
+                        <h3>Todesfallleistung</h3>
+                    </div>
+                    <div class="benefit-amount">{{
+                        formatCurrency(quote().leistungsmerkmale.todesfallleistungAbAltersrentenbezug) }}</div>
+                    <div class="benefit-detail">ab Altersrentenbezug</div>
+                    <div class="benefit-calculation">
+                        <small>Schutz für Ihre Hinterbliebenen</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Timeline Section -->
+        <div class="quote-section timeline">
+            <h2 class="section-title">
+                <span class="icon">⏰</span>
+                Ihr Versicherungsverlauf
+            </h2>
+            <div class="timeline-container">
+                <div class="timeline-item">
+                    <div class="timeline-marker start">📅</div>
+                    <div class="timeline-content">
+                        <h4>Versicherungsbeginn</h4>
+                        <p class="timeline-date">{{ formatDate(quote().basisdaten.versicherungsbeginn) }}</p>
+                        <small>Ihr Vertrag startet</small>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-marker middle">💰</div>
+                    <div class="timeline-content">
+                        <h4>Beitragszahlung</h4>
+                        <p class="timeline-date">{{ quote().basisdaten.beitragszahlungsdauer }} Jahre</p>
+                        <small>Einmalbeitrag: {{ formatCurrency(quote().beitrag.einmalbeitrag) }}</small>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-marker end">🎯</div>
+                    <div class="timeline-content">
+                        <h4>Rentenbeginn</h4>
+                        <p class="timeline-date">Mit {{ quote().basisdaten.alterBeiRentenbeginn }} Jahren</p>
+                        <small>Monatliche Rente startet</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Financial Analysis Section -->
+        <div class="quote-section analysis">
+            <h2 class="section-title">
+                <span class="icon">📊</span>
+                Finanzielle Analyse
+            </h2>
+            <div class="analysis-grid">
+                <div class="analysis-card">
+                    <div class="analysis-icon">💸</div>
+                    <h4>Ihr Beitrag</h4>
+                    <div class="analysis-value">{{ formatCurrency(quote().beitrag.einmalbeitrag) }}</div>
+                    <small>Einmalzahlung</small>
+                </div>
+                <div class="analysis-card">
+                    <div class="analysis-icon">📈</div>
+                    <h4>Garantierte Gesamtrente</h4>
+                    <div class="analysis-value">{{ formatCurrency(calculateTotalGuaranteedPension()) }}</div>
+                    <small>20 Jahre Rentenzahlung</small>
+                </div>
+                <div class="analysis-card success">
+                    <div class="analysis-icon">🎯</div>
+                    <h4>Rendite</h4>
+                    <div class="analysis-value">{{ calculateReturn() }}%</div>
+                    <small>Garantierte Verzinsung</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="quote-actions">
+            <button type="button" class="btn btn-outline" (click)="goBack()">
+                <span class="btn-icon">←</span>
+                Zurück zur Eingabe
+            </button>
+            <button type="button" class="btn btn-secondary" (click)="downloadQuote()">
+                <span class="btn-icon">📄</span>
+                PDF herunterladen
+            </button>
+            <button type="button" class="btn btn-primary" (click)="acceptQuote()">
+                <span class="btn-icon">✓</span>
+                Angebot annehmen
+            </button>
+            <button type="button" class="btn btn-success" (click)="startNewQuote()">
+                <span class="btn-icon">+</span>
+                Neues Angebot
+            </button>
+        </div>
+    </div>
+
+    <!-- No Quote State -->
+    <div *ngIf="!quote() && !isLoading() && !error()" class="no-quote-state">
+        <div class="no-quote-message">
+            <div class="no-quote-icon">📄</div>
+            <h2>Kein Angebot verfügbar</h2>
+            <p>Es wurde noch kein Angebot berechnet. Bitte füllen Sie zuerst das Eingabeformular aus.</p>
+            <button type="button" class="btn btn-primary" (click)="goBack()">
+                Zur Eingabe
+            </button>
+        </div>
+    </div>
+</div>

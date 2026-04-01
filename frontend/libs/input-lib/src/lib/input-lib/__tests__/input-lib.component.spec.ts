@@ -45,6 +45,7 @@ describe('InputLibComponent', () => {
       http: mockHttp as HttpClient,
     };
     const mockState: InputState = {
+      geburtsdatum: { value: '', valid: false, error: null },
       leistungsVorgabe: { value: 'Beitrag', valid: true, error: null },
       beitrag: { value: 1000, valid: true, error: null },
       berechnungDerLaufzeit: {
@@ -82,6 +83,8 @@ describe('InputLibComponent', () => {
           beitragsdynamik: '',
         },
       },
+      isCalculatingQuote: false,
+      error: null,
     };
 
     await TestBed.configureTestingModule({
@@ -94,7 +97,10 @@ describe('InputLibComponent', () => {
           useValue: {
             updateInputs: jest.fn(),
             calculate: jest.fn(),
+            clearError: jest.fn(),
             uiState: jest.fn(() => mockState),
+            isCalculatingQuote: jest.fn(() => false),
+            hasError: jest.fn(() => false),
           },
         },
       ],
@@ -148,5 +154,11 @@ describe('InputLibComponent', () => {
     await component.updateInputs(input);
 
     expect(inputStore.updateInputs).toHaveBeenCalledWith(input);
+  });
+
+  it('should clear error through the store', () => {
+    component.clearError();
+
+    expect(inputStore.clearError).toHaveBeenCalled();
   });
 });

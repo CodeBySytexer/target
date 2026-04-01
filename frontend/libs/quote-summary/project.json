@@ -1,0 +1,39 @@
+{
+    "name": "quote-summary",
+    "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+    "projectType": "library",
+    "sourceRoot": "frontend/libs/quote-summary/src",
+    "prefix": "lib",
+    "targets": {
+        "build": {
+            "executor": "@nx/angular:ng-packagr-lite",
+            "outputs": [
+                "{workspaceRoot}/dist/frontend/libs/quote-summary"
+            ],
+            "options": {
+                "project": "frontend/libs/quote-summary/ng-package.json"
+            }
+        },
+        "test": {
+            "executor": "@nx/jest:jest",
+            "outputs": [
+                "{workspaceRoot}/coverage/frontend/libs/quote-summary"
+            ],
+            "options": {
+                "jestConfig": "frontend/libs/quote-summary/jest.config.ts"
+            }
+        },
+        "lint": {
+            "executor": "@nx/eslint:lint",
+            "outputs": [
+                "{options.outputFile}"
+            ],
+            "options": {
+                "lintFilePatterns": [
+                    "frontend/libs/quote-summary/**/*.ts",
+                    "frontend/libs/quote-summary/**/*.html"
+                ]
+            }
+        }
+    }
+}
