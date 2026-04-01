@@ -10,15 +10,30 @@
     "importHelpers": true,
     "target": "es2015",
     "module": "esnext",
-    "lib": ["es2020", "dom"],
+    "lib": [
+      "es2020",
+      "dom"
+    ],
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@target/input-lib": ["frontend/libs/input-lib/src/index.ts"],
-      "@target/interfaces": ["shared/interfaces/src/index.ts"],
-      "@target/validations": ["shared/validations/src/index.ts"]
+      "@target/input-lib": [
+        "frontend/libs/input-lib/src/index.ts"
+      ],
+      "@target/interfaces": [
+        "shared/interfaces/src/index.ts"
+      ],
+      "@target/validations": [
+        "shared/validations/src/index.ts"
+      ],
+      "@target/quote-summary": [
+        "frontend/libs/quote-summary/src/index.ts"
+      ]
     }
   },
-  "exclude": ["node_modules", "tmp"]
+  "exclude": [
+    "node_modules",
+    "tmp"
+  ]
 }

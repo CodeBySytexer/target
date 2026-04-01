@@ -2,10 +2,12 @@ import { z } from 'zod';
 
 import { BeitragszahlungsweiseSchema } from './beitragszahlungsweise';
 import { BerechnungDerLaufzeitSchema } from './berechnung-der-laufzeit';
+import { GeburtsdatumSchema } from './geburtsdatum';
 import { LeistungsvorgabeSchema } from './leistungsvorgabe';
 import { RentenzahlungsweiseSchema } from './rentenzahlungsweise';
 
 export const InputDtoSchema = z.object({
+  geburtsdatum: GeburtsdatumSchema,
   leistungsVorgabe: LeistungsvorgabeSchema.nullish(),
   beitrag: z
     .number()

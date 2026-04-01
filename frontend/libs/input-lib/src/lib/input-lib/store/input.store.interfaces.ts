@@ -7,6 +7,7 @@ interface InputField<T> {
 }
 
 export interface InputState {
+  geburtsdatum: InputField<string>;
   leistungsVorgabe: InputField<string>;
   beitrag: InputField<number>;
   berechnungDerLaufzeit: InputField<string>;
@@ -14,6 +15,8 @@ export interface InputState {
   beitragszahlungsweise: InputField<string>;
   rentenzahlungsweise: InputField<string>;
   quote: QuoteResponseDto;
+  isCalculatingQuote: boolean;
+  error: string | null;
 }
 
 export interface Input {
